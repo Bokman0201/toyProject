@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="parking">
+
+	<insert id="insert">
+		insert into parking(parking_no, vehicle_no)
+		values(parking_seq.nextval, #{vehicleNo})
+	</insert>
+	<select id="allList" resultType="parkingDto">
+		select * from parking
+	</select>
+
+	<select id="searchList" resultType="parkingDto">
+		SELECT * FROM parking WHERE vehicle_no LIKE CONCAT('%', #{vehicleNo})
+	</select>
+	<select id="selectOne" resultType="parkingDto">
+		select * from parking WHERE vehicle_no =#{vehicleNo}
+	</select>
+
+</mapper>
