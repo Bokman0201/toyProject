@@ -67,7 +67,7 @@ public class HomeRestController {
 		long rate = 0;
 		boolean free = hours<1&& minutes <=30 && minutes<=10;
 		boolean tenOver = hours<1&& minutes <=30;
-		boolean basicOver = hours<24&&hours<24 && minutes>30;
+		boolean basicOver = hours<24&&hours<24;
 		boolean dayOver = hours>=24;
 		
 		long totalMin = hours * 60 + minutes;
@@ -79,6 +79,7 @@ public class HomeRestController {
 		}
 		else if(tenOver) {
 			rate = 5000;
+			
 		}
 		else if (basicOver) {
 		    int basic = 5000;
@@ -87,6 +88,7 @@ public class HomeRestController {
 		    int additionalCharges = (int) (hourToMin / 10) * addRate;
 
 		    rate = basic + additionalCharges;
+		    log.debug("rate={}",rate);
 		}
 		else if(dayOver) {
 			long hourRate = 50000;
@@ -110,5 +112,7 @@ public class HomeRestController {
 		return receiptDto;
 		
 	}
+	
+	
 
 }
