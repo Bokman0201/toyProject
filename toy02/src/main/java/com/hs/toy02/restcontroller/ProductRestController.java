@@ -20,102 +20,64 @@ import com.hs.toy02.vo.ProductVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Tag(name = "product")
 @CrossOrigin
 @RequestMapping("/product")
 @Slf4j
 @RestController
 public class ProductRestController {
-	@Autowired 
+	@Autowired
 	private ProductDao productDao;
 	@Autowired
 	private TagDao tagDao;
+
 	
+
 	@PostMapping("/addProduct")
-	//vo로 변경
-//	public ResponseEntity<?> addProduct(@RequestBody ProductDto productDto){
-//		//이미지 추가 
-//		
-//		//이미지 connector추가
-//		
-//		//상품추가
-//		int productNo = productDao.sequence();
-//		
-//		productDto.setProductNo(productNo);
-//		
-//		productDao.addProduct(productDto);
-//		
-//		//상품 설명 추가
-//		
-//		//상품 테그 추가
-//		
-//		
-//		
-//		int tagNo = tagDao.sequence();
-//		
-//		TaggedProductDto taggedProductDto = TaggedProductDto.builder()
-//				.tagNo(tagNo)
-//				.productNo(productNo)
-//				.build();
-//		//connector
-//		tagDao.insertConnect(taggedProductDto);
-//		
-//		return ResponseEntity.ok("");
-//		
-//		
-//		
-//	}
-	
-	public ResponseEntity<?> addProduct(@RequestBody ProductVO productVO){
-		//이미지 추가 
-		//ProductImages
-		//이미지에 대표이미지항목 생성 
-		//대표이미지가 1 인것이 최 상단에 렌더링 되도록 설정
-		
-		//이미지 connector추가
-		
-		//상품추가
+	public ResponseEntity<?> addProduct(@RequestBody ProductVO productVO) {
+		// 이미지 추가
+		// ProductImages
+		// 이미지에 대표이미지항목 생성
+		// 대표이미지가 1 인것이 최 상단에 렌더링 되도록 설정
+
+		// 이미지 connector추가
+
+		// 상품추가
 		ProductDto productDto = productVO.getProductDto();
 		int productNo = productDao.sequence();
-		
+
 		productDto.setProductNo(productNo);
-		
+
 		productDao.addProduct(productDto);
-		
-		//상품 설명 추가
-		//ProductDetail
-		
-		//상품 테그 추가
-		
-		
+
+		// 상품 설명 추가
+		// ProductDetail
+
+		// 상품 테그 추가
+
 		List<String> list = productVO.getTagList();
+		log.debug("list={}",list);
+		List<String> allTagList = tagDao.allList();
+		log.debug("alllist={}",allTagList);
+
+		// 리스트에 들어온 이름으로 select해서 같은게 있으면 그번호 저장 없으면 tag에 먼저 저장후 번호를 가져와서 저장
+		if (!list.isEmpty()) {
+			for (String tag : list) {
+				if (!allTagList.contains(tag)) {
+					int tagNo = tagDao.sequence();
+					tagDao.addTag(TagDto.builder().tagName(tag).tagNo(tagNo).build());
+					// connector
+				} 
+				int tagNo = tagDao.findNo(tag);
+				tagDao.insertConnect(TaggedProductDto.builder().tagNo(tagNo).productNo(productNo)
+						.build());
+			}
+		}
 		
-		//리스트에 들어온 이름으로 select해서 같은게 있으면 그번호 저장 없으면 tag에 먼저 저장후 번호를 가져와서 저장
-		for()
-			
+		return ResponseEntity.ok(productNo);
+
 		
-		
-		int tagNo = tagDao.sequence();
-		
-		TaggedProductDto taggedProductDto = TaggedProductDto.builder()
-				.tagNo(tagNo)
-				.productNo(productNo)
-				.build();
-		//connector
-		tagDao.insertConnect(taggedProductDto);
-		
-		return ResponseEntity.ok("");
-		
-		
-		
+
 	}
-	
-	
-	
-	
-	
-	
-	
 
 }

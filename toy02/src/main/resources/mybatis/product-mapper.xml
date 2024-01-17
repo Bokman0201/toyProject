@@ -9,6 +9,6 @@
     	</select>
     
     	<insert id="addProduct">
-    		insert into product(product_no,product_name,product_price) values(#{productNo},#{productName},#{productPrice})
+    		insert into product(product_no,product_name,product_price,product_seller) values(#{productNo},#{productName},#{productPrice},#{productSeller})
     	</insert>
     </mapper>

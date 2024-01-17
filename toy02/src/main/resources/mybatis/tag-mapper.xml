@@ -6,5 +6,17 @@
     	<select id="sequence" resultType="int">
     		select tag_seq.nextval from dual
     	</select>
+    	<insert id="insertConnect">
+    		insert into tagged_product(tag_no, product_no) values(#{tagNo},#{productNo})
+    	</insert>
+    	<select id="allList" resultType="String">
+    		select tag_name from tag
+    	</select>
+    	<insert id="addTag">
+    	 	insert into tag(tag_no, tag_name) values(#{tagNo},#{tagName})
+    	</insert>
+    	<select id="findNo" resultType="int">
+    		select tag_no from tag where tag_name=#{tag}
+    	</select>
     
     </mapper>
