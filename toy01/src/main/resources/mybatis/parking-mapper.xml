@@ -5,8 +5,8 @@
 <mapper namespace="parking">
 
 	<insert id="insert">
-		insert into parking(parking_no, vehicle_no)
-		values(parking_seq.nextval, #{vehicleNo})
+		insert into parking(vehicle_no)
+		values(#{vehicleNo})
 	</insert>
 	<select id="allList" resultType="parkingDto">
 		select * from parking
@@ -17,6 +17,15 @@
 	</select>
 	<select id="selectOne" resultType="parkingDto">
 		select * from parking WHERE vehicle_no =#{vehicleNo}
+	</select>
+	
+	
+	<insert id="createReceipt">
+		insert into receipt(vehicle_no,days,hours,minutes,price) values(#{vehicleNo},#{days},#{hours},#{minutes},#{price})
+	</insert>
+	
+	<select id="searchReceipt">
+		select * from receipt where vehicle_no =#{vehicleNo}
 	</select>
 
 </mapper>

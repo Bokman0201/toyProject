@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.hs.toy01.dto.ParkingDto;
+import com.hs.toy01.dto.ReceiptDto;
 
 @Repository
 public class ParkingDaoImpl implements ParkingDao {
@@ -32,5 +33,16 @@ public class ParkingDaoImpl implements ParkingDao {
 	@Override
 	public ParkingDto selectOne(String vehicleNo) {
 		return session.selectOne("parking.selectOne",vehicleNo);
+	}
+	
+	
+	@Override
+	public void createReceipt(ReceiptDto receiptDto) {
+		session.insert("parking.createReceipt",receiptDto);
+	}
+	
+	@Override
+	public ReceiptDto searchReceipt(String vehicleNo) {
+		return session.selectOne("parking.searchReceipt",vehicleNo);
 	}
 }

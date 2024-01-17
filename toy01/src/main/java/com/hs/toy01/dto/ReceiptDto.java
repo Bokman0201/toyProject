@@ -7,7 +7,7 @@ import lombok.Data;
 public class ReceiptDto {
 	private String vihecleNo;
 	private long days;
-	private long hour;
+	private long hours;
 	private long minutes;
 	private long price;
 

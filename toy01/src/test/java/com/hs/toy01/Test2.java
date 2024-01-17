@@ -28,7 +28,7 @@ public class Test2 {
 		
 		//결제 마다 변하는 정보 - 상품명 가격 주문번호 구매자ID
 		
-		String itemName = "노트북";
+		String itemName = "items";
 		long itemPrice = 100000;
 		String partnerOrderId = UUID.randomUUID().toString();
 		String partnerUserId = "testuser1"; 

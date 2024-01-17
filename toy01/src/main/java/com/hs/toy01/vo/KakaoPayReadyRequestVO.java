@@ -7,6 +7,9 @@ import lombok.Data;
 public class KakaoPayReadyRequestVO {
 	private String partnerUserId;
 	private String partnerOrderId;
+	private String itemName;
+	private int itemPrice;
+	
 	
 	
 	
