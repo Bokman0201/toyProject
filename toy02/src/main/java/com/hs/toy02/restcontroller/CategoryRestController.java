@@ -43,5 +43,11 @@ public class CategoryRestController {
 		
 		return categoryDao.childCategory(parentCategoryId);
 	}
+	
+	@GetMapping("/selectedCategory/{categoryId}")
+	public List<CategoryDto> selectedCategory(@PathVariable int categoryId){
+		
+		return categoryDao.selectedCategory(categoryId);
+	}
 
 }

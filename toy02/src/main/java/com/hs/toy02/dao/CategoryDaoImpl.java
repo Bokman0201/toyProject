@@ -25,5 +25,9 @@ public class CategoryDaoImpl implements CategoryDao{
 	public List<CategoryDto> childCategory(int parentCategoryId) {
 		return sqlSession.selectList("category.childCategory",parentCategoryId);
 	}
+	@Override
+	public List<CategoryDto> selectedCategory(int categoryId) {
+		return sqlSession.selectList("category.selectedCategory", categoryId);
+	}
 
 }

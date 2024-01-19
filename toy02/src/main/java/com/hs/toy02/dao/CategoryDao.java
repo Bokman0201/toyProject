@@ -12,4 +12,6 @@ public interface CategoryDao {
 
 	List<CategoryDto> childCategory(int parentCategoryId);
 
+	List<CategoryDto> selectedCategory(int categoryId);
+
 }
