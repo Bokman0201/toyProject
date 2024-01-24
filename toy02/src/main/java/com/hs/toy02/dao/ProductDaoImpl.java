@@ -1,5 +1,7 @@
 package com.hs.toy02.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,11 @@ public class ProductDaoImpl implements ProductDao{
 	@Override
 	public void addProduct(ProductDto productDto) {
 		sqlSession.insert("product.addProduct", productDto);
+	}
+	
+	@Override
+	public List<ProductDto> getProductList() {
+		return sqlSession.selectList("productList");
 	}
 
 }

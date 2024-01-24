@@ -1,20 +1,33 @@
 package com.hs.toy02.restcontroller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.hs.toy02.dao.AttachDao;
 import com.hs.toy02.dao.ProductDao;
+import com.hs.toy02.dao.ProductDetailDao;
 import com.hs.toy02.dao.TagDao;
+import com.hs.toy02.dto.AttachDto;
+import com.hs.toy02.dto.ProductDetailDto;
 import com.hs.toy02.dto.ProductDto;
+import com.hs.toy02.dto.ProductImageDto;
 import com.hs.toy02.dto.TagDto;
 import com.hs.toy02.dto.TaggedProductDto;
+import com.hs.toy02.service.AttachService;
+import com.hs.toy02.vo.ImageVO;
 import com.hs.toy02.vo.ProductVO;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,31 +43,70 @@ public class ProductRestController {
 	private ProductDao productDao;
 	@Autowired
 	private TagDao tagDao;
+	@Autowired
+	private AttachDao attachDao;
+	@Autowired
+	private ProductDetailDao productDetailDao;
+	
+	@Autowired
+	private AttachService attachService; 
+	
+	@PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public void productImage(@ModelAttribute ImageVO imageVO) throws IllegalStateException, IOException {
+		
+		log.debug("VO={}",imageVO);
+		MultipartFile[] attaches = imageVO.getAttach();
+		
+		log.debug("attaches={}",imageVO);
+		for(MultipartFile attach : attaches) {
+			log.debug("attach={}",attach.getOriginalFilename());
+		    
+		    int attachNo = attachDao.sequence();
+
+		    String home = System.getProperty("user.home");
+		    File dir = new File(home, "toy2upload");
+		    dir.mkdirs();
+		    File target = new File(dir, String.valueOf(attachNo));
+		    attach.transferTo(target);
+		    
+		    AttachDto attachDto = new AttachDto();
+		    attachDto.setAttachNo(attachNo);
+		    attachDto.setAttachName(attach.getOriginalFilename());
+		    attachDto.setAttachSize(attach.getSize());
+		    attachDto.setAttachType(attach.getContentType());
+		    
+		    attachDao.addImage(attachDto);
+		    log.debug("dto={}",attachDto);
+		    
+		    
+		    ProductImageDto productImageDto = new ProductImageDto();
+		    productImageDto.setAttachNo(attachNo);
+		    productImageDto.setProductNo(imageVO.getProductNo());
+		    attachDao.addConnecter(productImageDto);
+		    
+		    
+		}
+		
+	}
 
 	
 
-	@PostMapping("/addProduct")
-	public ResponseEntity<?> addProduct(@RequestBody ProductVO productVO) {
-		// 이미지 추가
-		// ProductImages
-		// 이미지에 대표이미지항목 생성
-		// 대표이미지가 1 인것이 최 상단에 렌더링 되도록 설정
-
-		// 이미지 connector추가
-
-		// 상품추가
+	@PostMapping(value = "/addProduct")
+	public ResponseEntity<?> addProduct(@RequestBody ProductVO productVO)  {
 		ProductDto productDto = productVO.getProductDto();
 		int productNo = productDao.sequence();
+		// 이미지 추가
 
+		//상품 추가 
 		productDto.setProductNo(productNo);
-
 		productDao.addProduct(productDto);
+		
+		//상품 설명 추가 
+		ProductDetailDto productDetailDto = productVO.getProductDetailDto();
+		productDetailDto.setProductNo(productNo);
+		productDetailDao.addProductDetail(productDetailDto);
 
-		// 상품 설명 추가
-		// ProductDetail
-
-		// 상품 테그 추가
-
+		//태그 추가
 		List<String> list = productVO.getTagList();
 		log.debug("list={}",list);
 		List<String> allTagList = tagDao.allList();
@@ -80,4 +132,10 @@ public class ProductRestController {
 
 	}
 
+	
+	@GetMapping("/productList")
+	public List<ProductDto> getProductList(){
+		
+		return productDao.getProductList();
+	}
 }

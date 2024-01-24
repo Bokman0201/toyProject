@@ -2,13 +2,23 @@
 <!DOCTYPE mapper
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-    
-    <mapper namespace="product">
-    	<select id="sequence" resultType="int">
-			select product_seq.nextval from dual
-    	</select>
-    
-    	<insert id="addProduct">
-    		insert into product(product_no,product_name,product_price,product_seller) values(#{productNo},#{productName},#{productPrice},#{productSeller})
-    	</insert>
-    </mapper>
+
+<mapper namespace="product">
+	<select id="sequence" resultType="int">
+		select product_seq.nextval from dual
+	</select>
+
+	<insert id="addProduct">
+		insert into product(product_no,product_name,product_price,product_seller)
+		values(#{productNo},#{productName},#{productPrice},#{productSeller})
+	</insert>
+
+
+	<select id="productList" resultType="productDto">
+		select *from(
+		select rownum rn, TMP.* from(
+		SELECT * from product order by product_upload_date desc
+		)TMP
+		)where rn BETWEEN 1 and 9
+	</select>
+</mapper>

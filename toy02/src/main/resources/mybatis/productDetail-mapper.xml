@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="productDetail">
+    <insert id="insertProductDetail">
+    	insert into product_detail(product_no, product_detail_title,product_detail_content) 
+    	values(#{productNo},#{productDetailTitle},#{productDetailContent})
+    </insert>
+    </mapper>

@@ -6,11 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
-public class ProductDto {
+public class ProductImageDto {
+	
+	private int attachNo;
 	private int productNo;
-	private String productName;
-	private int productPrice;
-	private String productSeller;
-	private String productUploadDate;
-	private int productSellCount;
+
 }
