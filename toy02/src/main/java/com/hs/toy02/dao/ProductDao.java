@@ -12,4 +12,6 @@ public interface ProductDao {
 
 	List<ProductDto> getProductList();
 
+	ProductDto selectOne(int productNo);
+
 }

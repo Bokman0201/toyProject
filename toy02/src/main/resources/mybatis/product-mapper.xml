@@ -21,4 +21,9 @@
 		)TMP
 		)where rn BETWEEN 1 and 9
 	</select>
+	
+	
+	<select id="selectOne" resultType="productDto">
+		select * from product where product_no = #{productNo}
+	</select>
 </mapper>

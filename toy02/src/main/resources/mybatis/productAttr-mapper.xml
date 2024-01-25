@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="productAttr">
+    
+    <select id="sequence" resultType="int">
+    select product_attr_seq.nextval from dual
+    </select>
+    
+    <insert id="addAttr">
+    insert into product_attr(product_attr_no,product_no,product_size,product_attr_price) values(#{productAttrNo},#{productNo},#{productSize},#{productAttrPrice})
+    </insert>
+    
+    <select id="selectNo" resultType="int">
+    select product_attr_no from product_attr where product_size=#{productSize} and product_no=#{productNo}
+    </select>
+    <select id="getAttrList" resultType="productAttrDto">
+    select * from product_attr where product_no =#{productNo}
+    </select>
+    
+    </mapper>

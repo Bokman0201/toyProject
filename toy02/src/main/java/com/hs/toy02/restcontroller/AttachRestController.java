@@ -1,10 +1,17 @@
 package com.hs.toy02.restcontroller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +37,7 @@ public class AttachRestController {
 	private AttachDao attachDao;
 	
 	@GetMapping("/getImage/{productNo}")
-	public ResponseEntity<Map<Integer, String>> downloadProfileImages(@PathVariable int productNo) {
+	public ResponseEntity<Map<Integer, String>> downloadProfileImages(@PathVariable int productNo) throws IOException {
 		
 		List<AttachDto> attachList = attachDao.getImageList(productNo);
 		log.debug("list={}", attachList);
@@ -43,8 +50,20 @@ public class AttachRestController {
 		
 		////여기부터 다시 하면됨
 		
+		for(AttachDto attachDto : attachList) {
+	        File target = new File(System.getProperty("user.home"), "toy2upload/" + attachDto.getAttachNo());
+	        
+	        byte[] data = Files.readAllBytes(target.toPath());
+	        String base64Encoded = Base64.getEncoder().encodeToString(data);
+	        
+	        imageContentMap.put(attachDto.getAttachNo(),base64Encoded);
+		}
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
 		
-		return null;
+		
+		
+	    return new ResponseEntity<Map<Integer, String>>(imageContentMap, headers, HttpStatus.OK);
 	
 	}
 
