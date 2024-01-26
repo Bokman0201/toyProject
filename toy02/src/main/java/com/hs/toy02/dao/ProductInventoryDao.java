@@ -6,4 +6,6 @@ public interface ProductInventoryDao {
 
 	void addInventory(ProductInventoryDto productInventoryDto);
 
+	ProductInventoryDto getInventory(int productAttrNo);
+
 }

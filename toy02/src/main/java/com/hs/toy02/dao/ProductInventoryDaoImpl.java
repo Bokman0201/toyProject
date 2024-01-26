@@ -17,4 +17,10 @@ public class ProductInventoryDaoImpl implements ProductInventoryDao {
 	public void addInventory(ProductInventoryDto productInventoryDto) {
 		sqlSession.insert("productInventory.addInventory",productInventoryDto);
 	}
+
+
+	@Override
+	public ProductInventoryDto getInventory(int productAttrNo) {
+		return sqlSession.selectOne("productInventory.getInventory",productAttrNo);
+	}
 }

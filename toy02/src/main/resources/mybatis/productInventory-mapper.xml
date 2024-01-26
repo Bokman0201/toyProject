@@ -8,4 +8,9 @@
     insert into product_inventory(product_attr_no, product_inventory_count) values(#{productAttrNo},#{productInventoryCount})
     </insert>
     
+    <select id="getInventory" resultType="productInventoryDto">
+    select * from product_inventory where PRODUCT_ATTR_NO =#{productAttrNo}
+    
+    </select>
+    
     </mapper>

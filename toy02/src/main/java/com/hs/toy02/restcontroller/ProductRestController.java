@@ -216,5 +216,10 @@ public class ProductRestController {
 		return productAttrDao.getAttrList(productNo);
 	}
 	
+	@GetMapping("/productInventory/{productAttrNo}")
+	public  ProductInventoryDto getInventory(@PathVariable int productAttrNo) {
+		return productInventoryDao.getInventory(productAttrNo);
+	}
+	
 	
 }
