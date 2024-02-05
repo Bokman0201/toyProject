@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="chatRooms">
+    
+    <select id="sequence" resultType="int">
+    	select chat_rooms_seq.nextval from dual
+    </select>
+    
+    <insert id="addRoom">
+    	insert into chat_rooms(channel_no,chat_room_no, chat_room_name) values(#{channelNo},#{chatRoomNo},#{chatRoomName})
+    </insert>
+    
+    <select id="roomList" resultType="ChatRoomsDto">
+    	select * from chat_rooms where channel_no = #{channelNo} order by chat_room_no desc
+    </select>
+    </mapper>
