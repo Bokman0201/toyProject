@@ -1,11 +1,15 @@
 package com.hs.sockjs01.websocket;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -13,6 +17,9 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hs.sockjs01.dto.ChannelMemberDto;
+import com.hs.sockjs01.dto.ChatMessageDto;
+import com.hs.sockjs01.service.MessageService;
 import com.hs.sockjs01.vo.ClientVO;
 import com.hs.sockjs01.vo.RoomVO;
 
@@ -28,15 +35,21 @@ public class WebSocketService extends TextWebSocketHandler {
 
 	private Set<RoomVO> roomList = new CopyOnWriteArraySet<>();
 
-	private Map<Integer, RoomVO> chatRooms = new HashMap<>();
-
 	private Set<ClientVO> waitingRoom = new HashSet<>();
+	
+     // 현재 한국 시간으로 LocalDateTime 객체 생성
+    Date currentDate = new Date();
+    // Create a SimpleDateFormat object with the desired format
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    // Format the Date object using the SimpleDateFormat
+    String formattedDate = dateFormat.format(currentDate);
 
-	// private Map<Integer, V>
+	@Autowired
+	private MessageService messageService;
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		log.debug("session= {}", session);
+		//log.debug("session= {}", session);
 	}
 
 	@Override
@@ -68,8 +81,8 @@ public class WebSocketService extends TextWebSocketHandler {
 			//
 			// 0이면 대기실
 
-			log.debug("client={}", client);
-			log.debug("waitingRoom={}", waitingRoom);
+			//log.debug("client={}", client);
+			//log.debug("waitingRoom={}", waitingRoom);
 
 			for (ClientVO user : waitingRoom) {
 				if (!user.getUserId().equals(client.getUserId())) {
@@ -88,69 +101,94 @@ public class WebSocketService extends TextWebSocketHandler {
 		}
 
 		else if (type.equals("message")) {
-			log.debug(message.getPayload());
+			//log.debug(message.getPayload());
 			String chatMessageSender = (String) params.get("sender");
 			String content = (String) params.get("content");
 			Integer roomNo = (Integer) params.get("roomNo");
 
 			Map<String, Object> map = new HashMap<>();
-			map.put("content", content);
-			map.put("userId", chatMessageSender);
-			map.put("userNick", client.getUserNick());
 			map.put("type", "message");
+
+			map.put("chatMessageContent", content);
+			map.put("chatMessageSender", chatMessageSender);
+			map.put("userNick", client.getUserNick());
+			map.put("chatRoomNo",roomNo);
+			map.put("chatMessageSendDate",formattedDate.toString() );
+			
 			String messageJSON = mapper.writeValueAsString(map);
 
 			TextMessage tm = new TextMessage(messageJSON);
 
+			List<ChannelMemberDto> list = messageService.getMemberList(roomNo);
 			for (RoomVO room : roomList) {
-				if (room.getChatRoomNo() == roomNo) {
-					log.debug("members ={} ", room.getChatMembers());
-					room.send(client, tm);
-				}
+			    if (room.getChatRoomNo() == roomNo) {
+			        for (ChannelMemberDto member : list) {
+						ChatMessageDto messageDto= new ChatMessageDto();
+			            messageDto.setChatMessageContent(content);
+			            messageDto.setChatMessageReceiver(member.getUserId());
+			            messageDto.setChatMessageSender(chatMessageSender);
+			            messageDto.setChatRoomNo(roomNo);
+
+			            Set<ClientVO> clientList = room.getChatMembers();
+			            boolean isMemberFound = false;
+			            for (ClientVO c : clientList) {
+			                if (c.getUserId().equals(member.getUserId())) {
+			                    messageDto.setChatMessageStatus("0");
+			                    isMemberFound = true;
+			                    break; 
+			                }
+			            }
+
+			            if (!isMemberFound) {
+			                messageDto.setChatMessageStatus("1");
+			            }
+
+			            messageService.saveMessage(messageDto);
+			        }
+			        
+			        room.send(client, tm);
+			    }
 			}
+			//log.debug("memberList={}", list);
 		}
 
 		else if (type.equals("enter")) {
-			log.debug("enter={}", message.getPayload());
+			//log.debug("enter={}", message.getPayload());
 			int chatRoomNo = (int) params.get("chatRoomNo");
-			log.debug("room={}", roomList);
-			String userId = (String)params.get("userId");
+			//log.debug("room={}", roomList);
+			String userId = (String) params.get("userId");
 
 			// 방이 존재하는지 확인
 			RoomVO roomVO = null;
 			for (RoomVO existingRoom : roomList) {
-			    if (existingRoom.getChatRoomNo() == chatRoomNo) {
-			    	roomVO = existingRoom;
-			        break;
-			    }
+				if (existingRoom.getChatRoomNo() == chatRoomNo) {
+					roomVO = existingRoom;
+					break;
+				}
 			}
-
 			if (roomVO == null) {
 				roomVO = RoomVO.builder().chatRoomNo(chatRoomNo).build();
-			    roomList.add(roomVO);
+				roomList.add(roomVO);
 			}
 			for (RoomVO room : roomList) {
-			    int roomNo = room.getChatRoomNo();
-			    log.debug("roomNo={},chatRoomNo={}",roomNo,chatRoomNo);
-			    
-			    boolean result =roomNo != chatRoomNo;
-			    log.debug("result={}",result);
+				int roomNo = room.getChatRoomNo();
 
-			    // 현재 방인지 확인
-			    if (roomNo != chatRoomNo) {
-			        // 현재 방에서 userId로 지정된 클라이언트를 나가게 처리
-			        Set<ClientVO> members = room.getChatMembers();
-			        for (ClientVO user : members) {
-			            if (user.equals(client)) {
-			                room.exit(client);
-			            }
-			        }
-			    } 
+
+				// 현재 방인지 확인
+				if (roomNo != chatRoomNo) {
+					// 현재 방에서 userId로 지정된 클라이언트를 나가게 처리
+					Set<ClientVO> members = room.getChatMembers();
+					for (ClientVO user : members) {
+						if (user.equals(client)) {
+							room.exit(client);
+						}
+					}
+				}
 			}
 
 			// Add the client to the room
 			roomVO.enter(client);
-			log.debug("list={}", roomList);
+			//log.debug("list={}", roomList);
 		}
 	}
 
@@ -159,17 +197,16 @@ public class WebSocketService extends TextWebSocketHandler {
 		// 접속 종료시 세션 제거
 		ClientVO client = new ClientVO(session);
 
-		log.debug("sessionclose={}", session);
+		//log.debug("sessionclose={}", session);
 		waitingRoom.remove(client);
 		members.exit(client);
-//		Iterator<Map.Entry<Integer, ClientVO>> iterator = chatRooms.entrySet().iterator();
-//		while (iterator.hasNext()) {
-//		    Map.Entry<Integer, ClientVO> entry = iterator.next();
-//		    ClientVO clientInMap = entry.getValue();
-//
-//		    if (clientInMap.getUserId().equals(client.getUserId())) {
-//		        iterator.remove(); // 해당 클라이언트를 제거
-//		    }
-//		}		log.debug("chatRoomMap={}",chatRooms);
+		for (RoomVO room : roomList) {
+			Set<ClientVO> members = room.getChatMembers();
+			for (ClientVO user : members) {
+				if (user.equals(client)) {
+					room.exit(client);
+				}
+			}
+		}
 	}
 }

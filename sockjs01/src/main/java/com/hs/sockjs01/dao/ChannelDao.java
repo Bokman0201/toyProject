@@ -3,6 +3,7 @@ package com.hs.sockjs01.dao;
 import java.util.List;
 
 import com.hs.sockjs01.dto.ChannelDto;
+import com.hs.sockjs01.dto.ChannelMemberDto;
 
 public interface ChannelDao {
 
@@ -15,5 +16,7 @@ public interface ChannelDao {
 	ChannelDto channelInfo(int channelNo);
 
 	List<ChannelDto> getChannels(String userId);
+
+	void addChannelMember(ChannelMemberDto channelMemberDto);
 
 }

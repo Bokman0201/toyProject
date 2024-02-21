@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="email">
+	<insert id="auth">
+		insert into email_auth values(auth_seq.nextval,#{clientId},#{authenticationNum})
+	</insert>
+	
+	<delete id="deleteAuth">
+		delete from email_auth where client_id = #{email}
+	</delete>
+	
+	<select id="findAuth" resultType="EmailAuthDto">
+		select * from email_auth where client_id =#{email} ORDER BY auth_no DESC
+FETCH FIRST 1 ROW ONLY
+	</select>
+
+</mapper>

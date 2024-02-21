@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="invite">
+ 	<insert id="inviteMember">
+ 		insert into invite_member(company_id, invite_member_email) values(#{companyId} ,#{memberEmail})
+ 	</insert>
+ 	
+ 	<delete id="inviteCancel">
+ 		delete from invite_member where invite_member_email = #{memberEmail}
+ 	</delete>
+ 	
+ 	<select id="invitedMember" resultType="inviteMemberDto">
+ 		select * from invite_member where company_id=#{companyId}
+ 	</select>
+ </mapper>

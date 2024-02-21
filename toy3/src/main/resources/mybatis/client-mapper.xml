@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="client">
+	<insert id="addClient">
+		insert into client(company_id, client_email,client_pw,client_name,client_birth) 
+		values(#{companyId},#{clientEmail},#{clientPw},#{clientName},#{clientBirth})
+	</insert>
+	
+	<select id="findClient" resultType="ClientDto">
+		select * from client where client_email = #{clientEmail}
+	</select>
+	
+	<select id="findCompany" resultType="CompanyDto">
+		select * from company where company_invite_code =#{inviteCode}
+	</select>
+	
+	<select id="list" resultType="clientDto">
+		select client_email,company_id,client_name,client_birth,client_join from client where company_id=#{companyId}
+	</select>
+</mapper>

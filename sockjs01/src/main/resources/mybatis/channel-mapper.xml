@@ -7,6 +7,7 @@
 		select channel_seq.nextval from
 		dual
 	</select>
+	
 
 	<insert id="addChannel">
 		insert into
@@ -25,7 +26,14 @@
 	</select>
 
 	<select id="getChannels" resultType="ChannelDto">
-		select * from CHANNEL where channel_No in (select channel_no from
-		channel_member where user_id = #{userId})
+		select * from CHANNEL where
+		channel_No in (select channel_no from
+		channel_member where user_id =
+		#{userId}) and channel_host != #{userId}
 	</select>
+
+
+	<insert id="addChannelMember">
+		insert into channel_member(channel_no, user_id) values(#{channelNo},#{userId})
+	</insert>
 </mapper>

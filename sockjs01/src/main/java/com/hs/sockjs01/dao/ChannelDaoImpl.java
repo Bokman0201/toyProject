@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.hs.sockjs01.dto.ChannelDto;
+import com.hs.sockjs01.dto.ChannelMemberDto;
 
 @Repository
 public class ChannelDaoImpl implements ChannelDao{
@@ -33,5 +34,10 @@ public class ChannelDaoImpl implements ChannelDao{
 	@Override
 	public List<ChannelDto> getChannels(String userId) {
 		return sqlSession.selectList("channel.getChannels",userId);
+	}
+	@Override
+	public void addChannelMember(ChannelMemberDto channelMemberDto) {
+		sqlSession.insert("channel.addChannelMember",channelMemberDto);
+		
 	}
 }

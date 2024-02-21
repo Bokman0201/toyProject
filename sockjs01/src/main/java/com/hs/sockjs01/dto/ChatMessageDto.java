@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 public class ChatMessageDto {
 	
     private Long chatMessageNo;
+    private int chatRoomNo;
     private String chatMessageSender; 
     private String chatMessageReceiver; 
     private String chatMessageContent;
     private String chatMessageSendDate;
+    private String chatMessageStatus;
 }
