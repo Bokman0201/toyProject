@@ -27,6 +27,7 @@ import com.hs.social.dao.ClientDao;
 import com.hs.social.dao.EmailAuthDao;
 import com.hs.social.dto.ClientDto;
 import com.hs.social.dto.EmailAuthDto;
+import com.hs.social.vo.LoginRequestVO;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
@@ -43,36 +44,35 @@ public class ClientRestController {
 	private BCryptPasswordEncoder encoder;
 	@Autowired
 	private ClientDao clientDao;
-	
+
 	@Autowired
 	private JavaMailSender sender;
 	@Autowired
 	private EmailAuthDao emailAuthDao;
-	
-	@PostMapping("/signin")
-	public ResponseEntity<?> clientSignin(@RequestBody ClientDto clientDto){
-		
-		ClientDto findDto = clientDao.findClient(clientDto.getClientEmail());
-		
-		if(findDto != null) return ResponseEntity.badRequest().build();
 
-		
+	@PostMapping("/signin")
+	public ResponseEntity<?> clientSignin(@RequestBody ClientDto clientDto) {
+
+		ClientDto findDto = clientDao.findClient(clientDto.getClientEmail());
+
+		if (findDto != null)
+			return ResponseEntity.badRequest().build();
+
 		String clientPw = clientDto.getClientPw();
 		String encodePw = encoder.encode(clientPw);
-		clientDto.setClientPw(encodePw);	
+		clientDto.setClientPw(encodePw);
 		clientDao.clientSignin(clientDto);
-		
-		
+
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PostMapping("/EmailAuthentication/{email}")
 	public ResponseEntity<?> EmailAuthentication(@PathVariable String email) throws MessagingException, IOException {
 		ClientDto findDto = clientDao.findClient(email);
-		
-		if(findDto != null) return ResponseEntity.badRequest().build();
 
-		
+		if (findDto != null)
+			return ResponseEntity.badRequest().build();
+
 		MimeMessage messeage = sender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(messeage, false, "UTF-8");
 
@@ -101,50 +101,71 @@ public class ClientRestController {
 
 		// UUID를 8자리 숫자로 축약
 		String authenticationNum = uuid.toString().replaceAll("-", "").substring(0, 8);
-		
+
 		Authentication.text(authenticationNum);
 
 		Element link = doc.getElementById("link");
 		link.attr("href", "https://www.google.com");// 가져온 태그의 href속성을 변경해라
 
 		helper.setText(doc.toString(), true);
-		
+
 		EmailAuthDto emailAuthDto = new EmailAuthDto();
 		emailAuthDto.setAuthenticationText(authenticationNum);
 		emailAuthDto.setClientEmail(email);
 		emailAuthDao.insertAuth(emailAuthDto);
-		
-		log.debug("dto = {}",emailAuthDto);
+
+		log.debug("dto = {}", emailAuthDto);
 		sender.send(messeage);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PostMapping("/isMatchAuth/{email}/{code}")
 	public ResponseEntity<?> isMatchAuth(@PathVariable String email, @PathVariable String code) {
-		EmailAuthDto emailAuthDto =  emailAuthDao.findAuth(email);
-		
-		if(emailAuthDto ==null) ResponseEntity.notFound().build();
-			
+		EmailAuthDto emailAuthDto = emailAuthDao.findAuth(email);
+
+		if (emailAuthDto == null)
+			ResponseEntity.notFound().build();
+
 		String origin = emailAuthDto.getAuthenticationText();
-		if(origin.equals(code)) {
+		if (origin.equals(code)) {
 			return ResponseEntity.ok(200);
-		}
-		else {
+		} else {
 			return ResponseEntity.notFound().build();
 		}
-		
+
 	}
-	
+
 	@GetMapping("/findClient/{clientEmail}")
 	public ClientDto fingClient(@PathVariable String clientEmail) {
 		return clientDao.findClient(clientEmail);
 	}
-	
+
 	@DeleteMapping("/deleteAuth/{email}")
 	public void deleteAuth(@PathVariable String email) {
 		emailAuthDao.deleteAuth(email);
-	} 
-	
+	}
 
+	@PostMapping("/login")
+	public ResponseEntity login(@RequestBody LoginRequestVO requestVO) {
+
+		ClientDto findDto = clientDao.findClient(requestVO.getLoginId());
+
+		String encodePw = findDto.getClientPw();
+		String inputPw = requestVO.getLoginPw();
+		
+		boolean result = encoder.matches(inputPw,encodePw);
+		
+		//log.debug("result ={}", result);
+
+		if (!result) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		
+		findDto.setClientPw(null);
+		return ResponseEntity.ok(findDto);
+	}
+	
+	
 
 }

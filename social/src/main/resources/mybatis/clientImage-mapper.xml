@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="clientImg">
+	<insert id="addImage">
+		insert into client_img(attach_no, client_email) values(#{attachNo}, #{clientEmail})
+	</insert>
+	
+	<select id="findImg" resultType="AttachDto">
+		select * from attach where attach_no = (select attach_no from client_img where client_email = #{clientEmail})
+	</select>
+</mapper>
