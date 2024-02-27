@@ -10,12 +10,12 @@
 	</insert>
 
 	<delete id="deleteAuth">
-		delete from email_auth where client_id = #{email}
+		delete from email_auth where client_email = #{email}
 	</delete>
 
 	<select id="findAuth" resultType="EmailAuthDto">
 		SELECT * FROM email_auth WHERE
-		client_id = #{email} ORDER BY auth_no DESC
+		client_email = #{email} ORDER BY auth_id DESC
 		LIMIT 1;
 	</select>
 

@@ -6,4 +6,7 @@
 	<insert id="singin">
 		insert into client values(#{clientEmail},#{clientName},#{clientPw},CURRENT_DATE)
 	</insert>
+	<select id="find" resultType="clientDto">
+		select * from client where client_email = #{clientEmail}
+	</select>
 </mapper>

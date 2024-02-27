@@ -15,5 +15,10 @@ public class ClientDaoImpl implements ClientDao{
 	public void clientSignin(ClientDto clientDto) {
 		sqlSession.insert("client.singin",clientDto);
 	}
+	
+	@Override
+	public ClientDto findClient(String clientEmail) {
+		return sqlSession.selectOne("client.find",clientEmail);
+	}
 
 }

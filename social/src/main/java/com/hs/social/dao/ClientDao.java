@@ -6,4 +6,6 @@ public interface ClientDao {
 
 	void clientSignin(ClientDto clientDto);
 
+	ClientDto findClient(String clientEmail);
+
 }

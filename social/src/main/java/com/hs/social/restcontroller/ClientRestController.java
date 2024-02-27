@@ -15,6 +15,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,19 +52,27 @@ public class ClientRestController {
 	@PostMapping("/signin")
 	public ResponseEntity<?> clientSignin(@RequestBody ClientDto clientDto){
 		
-		String clientPw = clientDto.getClientPw();
+		ClientDto findDto = clientDao.findClient(clientDto.getClientEmail());
 		
+		if(findDto != null) return ResponseEntity.badRequest().build();
+
+		
+		String clientPw = clientDto.getClientPw();
 		String encodePw = encoder.encode(clientPw);
 		clientDto.setClientPw(encodePw);	
-		
 		clientDao.clientSignin(clientDto);
 		
 		
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok().build();
 	}
 	
 	@PostMapping("/EmailAuthentication/{email}")
-	public void EmailAuthentication(@PathVariable String email) throws MessagingException, IOException {
+	public ResponseEntity<?> EmailAuthentication(@PathVariable String email) throws MessagingException, IOException {
+		ClientDto findDto = clientDao.findClient(email);
+		
+		if(findDto != null) return ResponseEntity.badRequest().build();
+
+		
 		MimeMessage messeage = sender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(messeage, false, "UTF-8");
 
@@ -103,7 +113,38 @@ public class ClientRestController {
 		emailAuthDto.setAuthenticationText(authenticationNum);
 		emailAuthDto.setClientEmail(email);
 		emailAuthDao.insertAuth(emailAuthDto);
+		
+		log.debug("dto = {}",emailAuthDto);
 		sender.send(messeage);
+		return ResponseEntity.ok().build();
 	}
+	
+	@PostMapping("/isMatchAuth/{email}/{code}")
+	public ResponseEntity<?> isMatchAuth(@PathVariable String email, @PathVariable String code) {
+		EmailAuthDto emailAuthDto =  emailAuthDao.findAuth(email);
+		
+		if(emailAuthDto ==null) ResponseEntity.notFound().build();
+			
+		String origin = emailAuthDto.getAuthenticationText();
+		if(origin.equals(code)) {
+			return ResponseEntity.ok(200);
+		}
+		else {
+			return ResponseEntity.notFound().build();
+		}
+		
+	}
+	
+	@GetMapping("/findClient/{clientEmail}")
+	public ClientDto fingClient(@PathVariable String clientEmail) {
+		return clientDao.findClient(clientEmail);
+	}
+	
+	@DeleteMapping("/deleteAuth/{email}")
+	public void deleteAuth(@PathVariable String email) {
+		emailAuthDao.deleteAuth(email);
+	} 
+	
+
 
 }

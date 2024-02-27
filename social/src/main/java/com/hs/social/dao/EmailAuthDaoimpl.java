@@ -13,7 +13,8 @@ public class EmailAuthDaoimpl implements EmailAuthDao {
 	
 	@Override
 	public void insertAuth(EmailAuthDto emailAuthDto) {
-		sqlSession.insert("email.auth",emailAuthDto);
+	        sqlSession.insert("email.auth", emailAuthDto);
+
 	}
 	@Override
 	public void deleteAuth(String email) {
